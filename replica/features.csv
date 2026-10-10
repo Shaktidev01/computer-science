@@ -1,0 +1,39 @@
+feature,area,priority,original,clone,notes
+Describe a building in plain English and get a valid IFC4 file,core loop,must,yes,no,the one thing the product does
+LLM emits small design steps (room/door/window/stair/roof) not raw IFC,core loop,must,yes,no,the central design decision; model never writes IFC or walls
+Deterministic derivation of walls/slabs/openings/roofs from the design,core loop,must,yes,no,rooms as rectangles on a grid; polygons/arcs as extension
+IFC compiler with stable GlobalIds across edits,core loop,must,yes,no,ids derived from room ids
+Step validation with model-readable rejection messages and repair rounds,core loop,must,yes,no,
+Live streaming of steps and preview IFC to the viewer (SSE),streaming,must,yes,no,steps applied as they stream; previews at <=1s cadence
+Narration of the step being drafted ("cutting a window in the kitchen"),streaming,should,yes,no,needs partial-JSON parsing
+Embedded 3D IFC viewer with orbit/select/hide/isolate,viewer,must,yes,no,original uses That Open + web-ifc pinned 0.0.77
+Model tree (hierarchy and classes) and element properties panel,viewer,should,yes,no,
+Iterative editing by prompt ("move the kitchen north"),versions,must,yes,no,each prompt becomes a new version
+Linear version history with undo and revert,versions,must,yes,no,revert appends a copy; optimistic concurrency
+Version cards with 3D snapshot and live hover view,versions,should,yes,no,max 3 live canvases
+Select an element in the viewer and send it as prompt focus,editing,should,yes,no,
+Requirements checklist extracted from the prompt and checked after build,quality,must,yes,no,unsupported wishes reported not dropped
+Fix rounds for unmet requirements,quality,should,yes,no,
+Searchable parametric component library ("bricks") and how-to notes ("skills"),knowledge,should,yes,no,model looks them up through tool calls
+Clash detection and structural span checks,quality,should,yes,no,
+Visual self-check: model reviews rendered screenshots,quality,could,yes,no,needs headless renderer
+Concept-stage code review (IBC/IRC/ADA) with fix round,deliverables,could,yes,no,US-centric and rough; not to be relied on
+Drawing set (SVG/PDF) from the model,deliverables,could,yes,no,
+DXF plans,deliverables,could,yes,no,
+Excel schedules workbook,deliverables,should,yes,no,
+Cost and carbon estimate,deliverables,could,yes,no,rough numbers
+BCF issues export,deliverables,could,yes,no,
+Export bundle (zip) and single-artefact exports,deliverables,should,yes,no,
+Attach images to a prompt,input,should,yes,no,
+Pluggable LLM provider behind one interface,platform,must,yes,no,
+Mock LLM so the app and tests run with no key,platform,should,yes,no,
+Recorded-run replay at 10x with reasoning and previews,demo,could,yes,no,
+Sessions persisted across restarts,app shell,should,yes,no,
+Resizable panels with remembered layout,app shell,could,yes,no,
+Open an existing IFC and view it,viewer,should,yes,no,
+Import an IFC back into editable design (only for files the app made),import,could,yes,partial,"original: backend only, no UI button, own-files only"
+Desktop app shell,platform,could,yes,no,Tauri 2; browser version is enough
+Slicer / G-code preview,extras,could,yes,skip,backend only with no UI; not part of the core product
+Arbitrary IFC editing,import,could,no,skip,not in the original either
+Original brand (Tekt name/logo),brand,could,yes,skip,not rebuildable; new brand required
+Recorded demo runs and the bundled sample IFCs,content,could,yes,skip,their content
