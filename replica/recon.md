@@ -4,7 +4,12 @@ Scope: the core loop. Prompt in, streamed build visible in a 3D viewer, IFC out,
 For: not yet stated. The recon assumes a general text-to-BIM product and leaves the audience open. **Please confirm scope and audience.**
 Date: 2026-10-10
 
-Method note: the target is an open-source hackathon repo, not a hosted product. Following the skill's rules, this recon uses its **public documentation only** (README, `docs/architecture.md`, the one screenshot in `docs/`). No source files were read. The repo's file *names* (for example `Composer.tsx`) were used only to confirm that a screen or component exists.
+Method note (revised): the target is a public GitHub hackathon repo, not a hosted product, and you asked for a complete pass. So this recon now has three layers:
+1. **Docs**: README and `docs/architecture.md`.
+2. **The running app**: I installed the repo's dependencies in a scratch directory, ran its backend (offline mock LLM) and frontend, and drove it with a headless browser. Screens, states and labels below marked *seen* come from this. Captures are in `replica/screens/live-*.png` (reference only, never shipped).
+3. **UI source, labels only**: I read `Home.tsx`, `Sidebar.tsx`, `TopBar.tsx` and scanned the other components for button labels and titles, to name controls precisely. I did not read the backend or copy any code.
+
+Clean-room note: now that source has been looked at, keep the person who writes the clone separate from these notes where possible, or at least write everything fresh from the behaviour described here. Do not copy code, prompts, the brick JSON or skills markdown.
 
 ## Sources
 
@@ -13,60 +18,65 @@ Method note: the target is an open-source hackathon repo, not a hosted product. 
 | 1 | README (pitch, flow, stack, limits) | https://github.com/nocoastaec/text-to-ifc/blob/main/README.md | primary |
 | 2 | Architecture doc (steps, API, UI behaviour, deliverables, decisions) | https://github.com/nocoastaec/text-to-ifc/blob/main/docs/architecture.md | the richest source: sections 4.1-4.16 |
 | 3 | Reference screenshot (early UI, "Generative BIM") | https://github.com/nocoastaec/text-to-ifc/blob/main/docs/screenshot.png | saved as `replica/screens/ref-early-ui-generative-bim.png`; the README says the UI has since changed |
-| 4 | Newer UI screenshot | linked from the README (github user-attachments) | not fetched; **gap** |
-| 5 | Project write-up (Google Doc) | https://docs.google.com/document/d/1tU3kCJchFRInzQXuF_GBEn_fQGtBhatj | not read; **gap**, worth a look |
+| 4 | Newer UI screenshot | linked from the README (github user-attachments) | **blocked**: the sandbox proxy returned 403 for `github.com/user-attachments`. Replaced by my own captures of the running app (#7) |
+| 5 | Project write-up (Google Doc) | https://docs.google.com/document/d/1tU3kCJchFRInzQXuF_GBEn_fQGtBhatj | **blocked**: `docs.google.com` is not reachable from this sandbox's network policy. Still a **gap** |
 | 6 | Dependency manifests | `backend/requirements.txt`, `frontend/package.json` in the repo | for stack awareness only |
-| 7 | Live app | none; it is run locally | no hosted instance, no user account to drive; **screens are inferred from the docs, not seen** |
+| 7 | Running app (local) | built from the repo, served on localhost during recon | no hosted instance exists, so I ran it. **Mock LLM only**: no API key, so real-model output quality and the model's reasoning text were not seen live. Replay of a recorded run was started but not observed to completion |
 
 ## Core loop
 
-Type "two-storey house with a kitchen, three bedrooms and a garage", watch it build up in 3D one room, door and window at a time, download a valid IFC, then keep chatting to change it, each prompt becoming a new version.
+Type what you want to design (a house, but the home screen also suggests a bridge, road, data centre, rail station, treatment plant, substation), watch it build up in 3D one room, door and window at a time, download a valid IFC, then keep chatting to change it, each prompt becoming a new version.
 
 ## Screens
 
-Confidence on screens is **medium**: assembled from the architecture doc and one older screenshot. Nothing was clicked through.
+Screens S01-S10 were **seen** in the running app (mock LLM). S11 was started but not watched to the end. S12 does not exist as a screen.
 
 | ID | screen | route / how to reach | purpose | key components | states seen |
 | --- | --- | --- | --- | --- | --- |
-| S01 | Home | app start; no active session | start a project; list recorded runs | prompt composer, recorded-runs list, sample entry | empty, with recorded runs |
-| S02 | Workspace (main) | active session | the working view: 3D model plus chat and history | 3D viewer, toolbar (Open IFC, Sample, Save IFC, Fit, Hide, Isolate, Show all), version badge | empty, building (live preview), done, load error |
-| S03 | Sessions sidebar | left panel | switch, create or delete conversations; "New" | session list, New, Undo | empty, several sessions |
-| S04 | Assistant / composer | in workspace | enter prompt or change, attach images, send (Ctrl+Enter) | multiline input, "+" attach menu, thumbnails, send button | idle, sending, attachments |
-| S05 | Reasoning trace | in assistant, while and after a run | show the approach, per-step sentence with reason, grouped by phase, draft line, heartbeat, rejections | step list, phase groups, "drafting..." line, "waiting for the model... 12 s" | streaming, finished, step rejected, fix round |
-| S06 | Model tree and properties | right panel | hierarchy, classes tab, element properties | tree, class visibility toggles, properties pane | nothing selected ("Click an element to inspect it"), selected |
-| S07 | Version history | in sidebar or assistant | one card per version; snapshot becomes live orbit on hover; Inspect loads it into the main viewer; per-card IFC and Bundle download | version cards, prompt text, change summary chips | snapshot, live hover (max 3), current version highlighted |
-| S08 | Deliverables | tabs on a version | code review, drawings, cost & carbon; "Show in model" per clause | tab bar, clause list, SVG sheet viewer, estimate table | per-version, loading |
-| S09 | Export menu | top bar | IFC by default; caret lists drawings, DXF, XLSX, BCF, review, estimate, bundle | split button with menu | menu open |
-| S10 | Viewer overlays | on the 3D view | floating inspector, view palette, section tool | floating panels, drag handles | collapsed, open |
-| S11 | Replay mode | pick a recorded run, or `?replay=` | play back a stored run at 10x; then continue editing | same workspace plus playback | playing, finished |
-| S12 | Settings / model config | `.env` file only, no UI | choose LLM provider | n/a | not a screen in the original; **gap** |
+| S01 | Home | start; or breadcrumb "Home" | start a session | headline "What are we designing today?", hero composer (placeholder "Describe an asset - a bridge, a road, a data center, a building..."), model picker ("Offline mock" dropdown), "+" attach menu, send arrow, 7 suggestion chips (Rome sample, Highway bridge, Access road, Data center, Rail station, Treatment plant, Substation) plus "Open an IFC file", "Recorded runs" list (prompt, model, "9 min live") | empty, with recorded runs, backend offline (sidebar pill) |
+| S02 | Sidebar | left rail, collapsible | sessions and files | logo, search toggle, collapse, "New Session", "Open IFC...", "Sample model", "Past sessions" list with delete, backend status card ("Connected", "Model: mock · IfcOpenShell") | no sessions ("Nothing yet - describe an asset to start."), several, search with no matches, backend offline |
+| S03 | Top bar | top of workspace | navigation and export | "Home / <session title>" breadcrumb, toggle sidebar, toggle assistant, "..." menu (Delete session), split "Export IFC" button with a format menu, light/dark theme toggle | export disabled until a version exists, menu open |
+| S04 | Workspace: 3D model tab | centre, after first prompt | main model view | file tab (`preview.ifc` then `v1.ifc`), tabs 3D model / Drawings / Code review / Cost & carbon (locked until built), status badge ("preview 4 · 127 elements" then "v1 · final · 162 elements"), floating view palette (Top, Bottom, Front, Back, Left, Right, Isometric, reset, show-spaces), info card ("Click an element to inspect it and to make the next prompt about it"), section slider ("cut at 2.7 m · inside Ground Floor", "follow build" checkbox), axis gizmo | live preview growing, final, element selected |
+| S05 | Assistant panel | right, collapsible | conversation, reasoning, versions | prompt echo, "The parti: ..." summary, "Working · 19.4s" status, step groups with timings ("Reading the brief 2.1 s", "Design thinking 81 ms"), requirement chips ("2 storeys", "1 kitchen"...), italic reasoning text, jump-to-latest, version card, composer docked ("Describe an asset..." / "Describe a change...") | streaming, done, stopped with error ("the model produced no applicable steps"), step rejected |
+| S06 | Version card | in assistant, per version | one entry per version | 3D snapshot ("Rendering model..." then "Hover to explore in 3D"; "Drag to orbit · scroll to zoom", Reset, Inspect), actions IFC / PDF / Bundle / "In workspace", text summary ("Version 1: 2 levels and 162 elements, as valid IFC4. Spaces: ..."), counts per IFC class (IfcWall 29, IfcWindow 11...), collapsibles "Interpreted by <llm>" and "Structured BIM instructions", "Requirements: n of m met" chip, View / restore | rendering, ready, current, older (restore), failed |
+| S07 | Drawings tab | tab on a version | the generated sheet set | sheet thumbnails (G-001 Cover, G-002 Code analysis, A-101 Ground Floor plan 1:100, A-102 Level 2...), main sheet viewer, toolbar: full-screen, SVG, "PDF set", DXF, Schedules, Bundle; "7 sheets · A3 · US NCS numbering" | loading, loaded |
+| S08 | Code review tab | tab on a version | indicative IRC/IBC/ADA screen | header "IRC 2021 · indicative design-stage screen", summary cards (Occupancy R-3, Occupant load, Gross area, Construction type), filter chips ("11 clauses", "10 pass", "1 info"), clause rows (measured vs required, section ref) with "Show in model", BCF issues and Report buttons | pass, warn, fail, info |
+| S09 | Cost & carbon tab | tab on a version | cost plan and embodied carbon | construction cost range (AACE Class 5) with UniFormat bars, upfront carbon kgCO2e/m2 with a LETI band scale, "Design moves that cut carbon" list, quantities table, Workbook (.xlsx) and Cost plan (.csv) buttons | loaded |
+| S10 | Export menu | top bar caret | 12 formats | IFC, Drawing set (.pdf), CAD plans (.dxf), Schedules (.xlsx), Review issues (BCF 2.1), Full bundle (.zip), Design review (.md), Cost & carbon (.csv), Design summary, Schedule (.csv), BIM spec (.json), Design record (.json) | open |
+| S11 | Replay | click a "Recorded run" on Home, or `?replay=` | play back a real model run | same workspace; header shows "waiting for the model..." at start | starting (not observed to the end) |
+| S12 | Model settings | `.env` file only | choose provider | n/a, no in-app settings screen (the composer has a model picker only) | n/a |
+
+Also seen: a **dark theme** (full restyle, same layout) and a **light theme** (default).
+Mobile: not tested; the layout is a three-column desktop app.
 
 ## Flows
 
 ```
 F01 Create a building from a prompt
-    S01 -> S04 (type, send) -> S05 (stream) + S02 (growing model) -> S02 (final)
-    happy path clicks: 2 (type, send); the first version appears with no further input
+    S01 -> type in hero composer -> Enter (or click a suggestion chip: 1 click) -> S05 reasoning stream + S04 growing model -> final version
+    happy path clicks: 2 to send (1 with a suggestion chip); takes about 20 s on the mock model, 6-9 min on the recorded real-model runs
+    seen: the build is shown as numbered previews ("preview 4 · 127 elements") ending in "v1 · final · 162 elements"
     edge: model silent, invalid step rejected and repaired, requirement unmet -> fix round,
           unsupported wish reported not dropped, provider error, SSE drops mid-run
 
 F02 Edit by prompt
-    S02 -> (optionally select an element) -> S04 (type, send) -> S05 -> S07 (new card)
+    S04 -> (optionally click an element) -> docked composer ("Describe a change...") -> S05 -> S06 (new card)
+    seen: with the mock model, "Add a basement" ended in a red "Stopped after 0.9 s · 10 steps ... the model produced no applicable steps" state, so a failed edit leaves the previous version in place
     happy path clicks: 2; 3 with a selected element
     edge: stale base version (409), the edit rejected, a selected element no longer exists
 
 F03 Undo or revert
-    S03 Undo or S07 card -> new version appended (copy of the old one)
+    S06 older version card -> restore ("Make this version the head again") -> new version appended (copy of the old one)
     happy path clicks: 1
     edge: reverting the first version, concurrent run in flight
 
 F04 Review and export
-    S02 -> S08 (Code review / Drawings / Cost) -> S09 (Export) -> download
+    S04 -> S07 / S08 / S09 tabs -> S10 export menu or the per-tab buttons -> download
     happy path clicks: 2 for the IFC, 3 for another format
     edge: a failing clause -> "Show in model" highlights elements; older version exported from its card
 
 F05 Replay a recorded run
-    S01 recorded runs -> S11 playback -> S04 continue editing
+    S01 recorded runs -> S11 playback -> S05 continue editing
     happy path clicks: 1 to start
 
 F06 Open an IFC from disk
@@ -125,7 +135,7 @@ Relationships: Project 1-n Version (linear history); Version 1-1 Design; Design 
 
 ## Feature matrix
 
-See `features.csv`. Must: 11, should: 13, could: 14 (38 rows), of which 4 are marked skip.
+See `features.csv`. Must: 12, should: 19, could: 18 (49 rows), of which 4 are marked skip.
 
 ## Out of scope (cannot or should not be cloned)
 
@@ -138,7 +148,7 @@ See `features.csv`. Must: 11, should: 13, could: 14 (38 rows), of which 4 are ma
 
 ## Size
 
-Screens 12 (11 real), flows 7, entities 12. Hard parts:
+Screens 12 (11 real, 10 seen live), flows 7, entities 12. Hard parts:
 1. The **IFC compiler and derivation**: walls from room edges, openings, roofs, stairs, stable GlobalIds. This is where the real work is.
 2. **Streaming LLM pipeline**: partial-JSON parsing, per-step validation with repair, concurrent preview compiles, SSE, requirements check.
 3. **In-browser IFC viewer** with version-pinning pitfalls (web-ifc), plus the multi-viewer history cards.
@@ -147,5 +157,6 @@ Size: **L** for the full scope; **M** for the core loop alone (steps, derive, co
 
 ## Open questions for you
 1. Confirm the slice (core loop first, deliverables later?) and the audience.
-2. The Google Doc write-up and the newer README screenshot were not read. Say the word and I'll try them.
+2. The Google Doc write-up is still unread (`docs.google.com` is blocked by the sandbox network policy). Allow that host in the environment's network settings and I'll fetch it. The newer README screenshot was replaced by my own live captures.
 3. Whether you want a clean-room clone, a fork or a learning exercise. The missing LICENSE changes that answer.
+4. Real-model behaviour (reasoning text quality, build time, cost) was not observed live, only through docs and the two recorded Claude runs. Running with an Anthropic key would close that gap.

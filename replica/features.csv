@@ -37,3 +37,14 @@ Slicer / G-code preview,extras,could,yes,skip,backend only with no UI; not part 
 Arbitrary IFC editing,import,could,no,skip,not in the original either
 Original brand (Tekt name/logo),brand,could,yes,skip,not rebuildable; new brand required
 Recorded demo runs and the bundled sample IFCs,content,could,yes,skip,their content
+Suggestion chips on home (sample model and starter prompts for non-building assets),onboarding,should,yes,no,"seen live: Highway bridge, Access road, Data center, Rail station, Treatment plant, Substation"
+Model picker in the composer,platform,could,yes,no,seen live ("Offline mock" dropdown)
+Light and dark theme,app shell,could,yes,no,seen live
+Section-cut slider and follow-build toggle in the viewer,viewer,should,yes,no,seen live ("cut at 2.7 m · inside Ground Floor")
+View presets (top/front/.../isometric) and show-spaces toggle,viewer,should,yes,no,seen live
+Session list with search and delete,app shell,should,yes,no,seen live
+Backend status card in the sidebar,app shell,could,yes,no,seen live
+Locked deliverable tabs until the version is built,deliverables,could,yes,no,seen live
+Requirement chips and "n of m met" badge per version,quality,should,yes,no,seen live
+Stopped/error state for a failed edit keeps the previous version,versions,must,yes,no,seen live ("the model produced no applicable steps")
+Per-version PDF / IFC / Bundle download on the version card,deliverables,should,yes,no,seen live
